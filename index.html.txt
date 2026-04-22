@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Christian Music Prompt Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:#0b1220;
+  color:#e5e7eb;
+  padding:20px;
+  min-height:100vh;
+}
+
+.container{max-width:1100px;margin:auto}
+
+h1{font-size:1.6rem;color:#f8fafc;margin-bottom:4px}
+.subtitle{color:#94a3b8;font-size:.88rem;margin-bottom:24px}
+
+.card{
+  background:#111827;
+  padding:22px;
+  border-radius:14px;
+  margin-bottom:16px;
+  border:1px solid #1e293b;
+}
+
+.card h3{
+  font-size:.95rem;
+  color:#cbd5e1;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+label{
+  display:block;
+  font-size:.75rem;
+  color:#94a3b8;
+  margin-bottom:5px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+select,input{
+  width:100%;
+  padding:10px 14px;
+  background:#0f172a;
+  border:1px solid #1e293b;
+  border-radius:8px;
+  color:#e5e7eb;
+  font-size:.9rem;
+  outline:none;
+  transition:border .2s;
+}
+
+select:focus,input:focus{border-color:#22c55e}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+
+/* Base cards */
+.base-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+}
+
+.base-card{
+  background:#0f172a;
+  border:2px solid #1e293b;
+  border-radius:10px;
+  padding:14px;
+  cursor:pointer;
+  transition:all .2s;
+  user-select:none;
+}
+
+.base-card:hover{border-color:#334155}
+.base-card.selected{border-color:#22c55e;background:#052e16}
+.base-card .base-name{font-size:.85rem;font-weight:bold;color:#e5e7eb;margin-bottom:4px}
+.base-card .base-preview{font-size:.72rem;color:#6b7280;line-height:1.4}
+.base-card .base-icon{font-size:1.3rem;margin-bottom:6px}
+
+/* Chip selectors */
+.chip-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.chip{
+  padding:7px 14px;
+  border-radius:20px;
+  background:#1e293b;
+  border:1px solid #334155;
+  color:#94a3b8;
+  font-size:.8rem;
+  cursor:pointer;
+  transition:all .2s;
+  user-select:none;
+}
+
+.chip:hover{border-color:#22c55e;color:#e5e7eb}
+.chip.active{background:#052e16;border-color:#22c55e;color:#22c55e;font-weight:bold}
+
+/* Mode toggle */
+.mode-bar{
+  display:flex;
+  gap:8px;
+  margin-bottom:16px;
+}
+
+.mode-btn{
+  padding:8px 20px;
+  border-radius:8px;
+  border:1px solid #1e293b;
+  background:#0f172a;
+  color:#94a3b8;
+  font-size:.85rem;
+  cursor:pointer;
+  transition:all .2s;
+}
+
+.mode-btn.active{
+  background:#052e16;
+  border-color:#22c55e;
+  color:#22c55e;
+  font-weight:bold;
+}
+
+/* Lote count */
+.lote-control{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:8px;
+}
+
+.lote-control input[type=range]{
+  flex:1;
+  accent-color:#22c55e;
+  padding:0;
+  border:none;
+  background:transparent;
+}
+
+.lote-count{
+  font-size:1rem;
+  font-weight:bold;
+  color:#22c55e;
+  min-width:30px;
+  text-align:center;
+}
+
+/* Botão gerar */
+.btn-main{
+  width:100%;
+  padding:14px;
+  background:#22c55e;
+  color:#000;
+  border:none;
+  border-radius:10px;
+  font-size:1rem;
+  font-weight:bold;
+  cursor:pointer;
+  transition:background .2s,transform .1s;
+  margin-top:4px;
+}
+
+.btn-main:hover{background:#16a34a}
+.btn-main:active{transform:scale(.99)}
+.btn-main:disabled{background:#374151;color:#6b7280;cursor:not-allowed}
+
+/* Output */
+.output-box{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:10px;
+  padding:16px;
+  font-size:.85rem;
+  line-height:1.7;
+  white-space:pre-wrap;
+  color:#cbd5e1;
+  min-height:50px;
+}
+
+.btn-copy{
+  padding:7px 16px;
+  background:#0f172a;
+  border:1px solid #1e293b;
+  border-radius:8px;
+  color:#94a3b8;
+  font-size:.78rem;
+  cursor:pointer;
+  transition:all .2s;
+  margin-top:8px;
+}
+
+.btn-copy:hover{background:#1e293b;color:#e5e7eb}
+
+.btn-danger{
+  padding:7px 16px;
+  background:#0f172a;
+  border:1px solid #7f1d1d;
+  border-radius:8px;
+  color:#fca5a5;
+  font-size:.78rem;
+  cursor:pointer;
+  transition:all .2s;
+  margin-top:8px;
+}
+
+.btn-danger:hover{background:#450a0a}
+
+/* Char counter */
+.char-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:6px;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.char-count{font-size:.75rem;color:#6b7280}
+.char-count.warn{color:#facc15}
+.char-count.over{color:#ef4444}
+
+/* Prompt cards no lote */
+.prompt-card{
+  background:#0f172a;
+  border:1px solid #1e293b;
+  border-radius:10px;
+  padding:14px;
+  margin-bottom:10px;
+}
+
+.prompt-card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.prompt-num{
+  font-size:.78rem;
+  font-weight:bold;
+  color:#22c55e;
+}
+
+.prompt-tags{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.prompt-tag{
+  font-size:.7rem;
+  padding:2px 8px;
+  border-radius:10px;
+  background:#1e293b;
+  color:#94a3b8;
+}
+
+.prompt-text{
+  font-size:.83rem;
+  color:#cbd5e1;
+  line-height:1.6;
+  margin-bottom:8px;
+}
+
+.prompt-title{
+  font-size:.78rem;
+  color:#60a5fa;
+  margin-bottom:6px;
+}
+
+.btn-copy-sm{
+  padding:4px 12px;
+  background:#1e293b;
+  border:1px solid #334155;
+  border-radius:6px;
+  color:#94a3b8;
+  font-size:.72rem;
+  cursor:pointer;
+  transition:all .2s;
+}
+
+.btn-copy-sm:hover{background:#334155;color:#e5e7eb}
+
+/* Base preview box */
+.base-text-box{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:8px;
+  padding:12px 16px;
+  font-size:.82rem;
+  color:#6b7280;
+  line-height:1.6;
+  margin-top:10px;
+  font-style:italic;
+}
+
+.base-text-box span{color:#22c55e;font-style:normal;font-weight:bold}
+
+/* Histórico */
+.history-item{
+  background:#0f172a;
+  border:1px solid #1e293b;
+  border-radius:8px;
+  padding:12px;
+  margin-bottom:8px;
+  font-size:.8rem;
+  color:#94a3b8;
+  line-height:1.5;
+  position:relative;
+}
+
+.history-meta{
+  font-size:.72rem;
+  color:#374151;
+  margin-top:6px;
+}
+
+.history-actions{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+}
+
+.empty-state{
+  text-align:center;
+  padding:30px;
+  color:#374151;
+  font-size:.88rem;
+}
+
+/* Section divider */
+hr{border:none;border-top:1px solid #1e293b;margin:16px 0}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  background:#052e16;
+  border:1px solid #22c55e;
+  color:#86efac;
+  padding:12px 20px;
+  border-radius:10px;
+  font-size:.85rem;
+  opacity:0;
+  transform:translateY(10px);
+  transition:all .3s;
+  pointer-events:none;
+  z-index:999;
+}
+
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Spinner */
+.spinner{
+  width:16px;height:16px;
+  border:2px solid #000;
+  border-top-color:transparent;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:6px;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Negative prompt badge */
+.neg-badge{
+  display:inline-block;
+  background:#1a0a0a;
+  border:1px solid #7f1d1d;
+  color:#fca5a5;
+  font-size:.72rem;
+  padding:3px 10px;
+  border-radius:6px;
+  margin-bottom:8px;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  h1{font-size:1.3rem}
+  .base-grid{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:480px){
+  .base-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>✝️ Christian Music Prompt Generator</h1>
+<p class="subtitle">Sistema de prompt dinâmico — base fixa + variações infinitas para Suno</p>
+
+<!-- PASSO 1: BASE FIXA -->
+<div class="card">
+  <h3>① Base Musical <span style="color:#6b7280;font-weight:normal;font-size:.82rem">— identidade do seu canal</span></h3>
+  <div class="base-grid" id="baseGrid"></div>
+  <div class="base-text-box" id="basePreview">
+    <span>Selecione uma base acima</span> para ver o DNA musical do seu canal.
+  </div>
+</div>
+
+<!-- PASSO 2: VARIAÇÕES -->
+<div class="card">
+  <h3>② Variações <span style="color:#6b7280;font-weight:normal;font-size:.82rem">— o que muda em cada música</span></h3>
+
+  <div style="margin-bottom:16px">
+    <label>🏙️ Ambiente <span style="color:#374151;font-weight:normal">(escolha 1)</span></label>
+    <div class="chip-grid" id="ambienteChips"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom:16px;margin-top:16px">
+    <label>💫 Emoção <span style="color:#374151;font-weight:normal">(escolha 1)</span></label>
+    <div class="chip-grid" id="emocaoChips"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-bottom:16px;margin-top:16px">
+    <label>🎯 Uso <span style="color:#374151;font-weight:normal">(escolha 1)</span></label>
+    <div class="chip-grid" id="usoChips"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-top:16px">
+    <label>✨ Variação Extra <span style="color:#374151;font-weight:normal">(opcional)</span></label>
+    <div class="chip-grid" id="variacaoChips"></div>
+  </div>
+
+  <hr>
+
+  <div style="margin-top:16px">
+    <label>🎹 Instrumento em Destaque <span style="color:#374151;font-weight:normal">(opcional)</span></label>
+    <div class="chip-grid" id="instrumentoChips"></div>
+  </div>
+</div>
+
+<!-- PASSO 3: MODO + DURAÇÃO -->
+<div class="card">
+  <h3>③ Modo de Geração</h3>
+
+  <div class="mode-bar">
+    <button class="mode-btn active" id="modeSimple" onclick="setMode('simple')">🎵 Prompt Único</button>
+    <button class="mode-btn" id="modeLote" onclick="setMode('lote')">⚡ Gerar em Lote</button>
+  </div>
+
+  <div id="lotePanel" style="display:none;margin-bottom:16px">
+    <label>Quantidade de prompts</label>
+    <div class="lote-control">
+      <input type="range" id="loteRange" min="2" max="20" value="10" oninput="updateLoteCount()">
+      <div class="lote-count" id="loteCount">10</div>
+    </div>
+    <p style="font-size:.75rem;color:#6b7280;margin-top:6px">
+      No modo lote, as combinações são geradas automaticamente — sem repetição.
+    </p>
+  </div>
+
+  <div class="grid2">
+    <div class="field">
+      <label>⏱️ Duração (YouTube)</label>
+      <select id="duration">
+        <option>1 Hour</option>
+        <option>2 Hours</option>
+        <option selected>3 Hours</option>
+        <option>8 Hours</option>
+        <option>Single Track</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>📌 Nome da Série (opcional)</label>
+      <input id="seriesName" placeholder="Ex: Quiet Moments Vol. 1 / Night Peace Series">
+    </div>
+  </div>
+
+  <button class="btn-main" id="generateBtn" onclick="generate()">
+    ⚡ Gerar Prompt
+  </button>
+</div>
+
+<!-- OUTPUT ÚNICO -->
+<div id="singleOutput" style="display:none">
+
+  <div class="card">
+    <h3>🧠 Prompt — Suno</h3>
+    <div class="output-box" id="singlePrompt"></div>
+    <div class="char-bar">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-copy" onclick="copyEl('singlePrompt')">📋 Copiar Prompt</button>
+      </div>
+      <span class="char-count" id="singleCount"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🚫 Negative Prompt</h3>
+    <div class="neg-badge">Cole no campo "Negative" do Suno</div>
+    <div class="output-box" id="singleNeg"></div>
+    <button class="btn-copy" onclick="copyEl('singleNeg')">📋 Copiar Negative</button>
+  </div>
+
+  <div class="card">
+    <h3>🏷️ Título YouTube</h3>
+    <div class="output-box" id="singleTitle"></div>
+    <button class="btn-copy" onclick="copyEl('singleTitle')">📋 Copiar Título</button>
+  </div>
+
+  <div class="card">
+    <h3>🎵 Título Spotify</h3>
+    <div class="output-box" id="singleSpotify"></div>
+    <button class="btn-copy" onclick="copyEl('singleSpotify')">📋 Copiar</button>
+  </div>
+
+  <div class="card">
+    <h3>🔍 Tags SEO</h3>
+    <div class="output-box" id="singleTags"></div>
+    <button class="btn-copy" onclick="copyEl('singleTags')">📋 Copiar Tags</button>
+  </div>
+
+</div>
+
+<!-- OUTPUT LOTE -->
+<div id="loteOutput" style="display:none">
+  <div class="card">
+    <h3>⚡ Prompts Gerados em Lote</h3>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn-copy" onclick="copyAllLote()">📋 Copiar Todos os Prompts</button>
+      <button class="btn-copy" onclick="copyAllTitles()">📋 Copiar Todos os Títulos</button>
+    </div>
+    <div id="loteList"></div>
+  </div>
+</div>
+
+<!-- HISTÓRICO -->
+<div class="card">
+  <h3>🕒 Histórico <span style="color:#6b7280;font-weight:normal;font-size:.8rem">— últimos 20 prompts gerados</span></h3>
+  <div id="historyList">
+    <div class="empty-state">Nenhum prompt gerado ainda.</div>
+  </div>
+  <button class="btn-danger" onclick="clearHistory()" style="margin-top:8px">🗑️ Limpar Histórico</button>
+</div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DADOS
+// ═══════════════════════════════════════════════════
+
+const BASES = [
+  {
+    id: "christian-jazz",
+    icon: "🎷",
+    name: "Christian Jazz",
+    text: "soft christian jazz, gentle piano and soft saxophone, subtle female vocal humming (no lyrics), very calm and emotional, slow tempo, peaceful atmosphere, inspired by quiet moments with God, relaxing background music, seamless loop",
+    negative: "no drums, no strong percussion, no lyrics, no lead vocals, no aggressive bass, no loud moments, no sudden changes, no distortion, no electric guitar, no upbeat rhythm, no pop structure"
+  },
+  {
+    id: "worship-piano",
+    icon: "🎹",
+    name: "Soft Worship Piano",
+    text: "soft worship piano instrumental, warm acoustic piano with ambient pads, very gentle and devotional, slow tempo, sacred atmosphere, inspired by prayer and quiet time with God, peaceful background music, seamless loop",
+    negative: "no drums, no percussion, no lyrics, no lead vocals, no distortion, no electric elements, no sudden changes, no upbeat energy, no pop worship structure, no choir dominance"
+  },
+  {
+    id: "christian-lofi",
+    icon: "🎧",
+    name: "Christian Lo-fi",
+    text: "christian lo-fi instrumental, soft rhodes piano with gentle lo-fi texture, subtle vinyl crackle, warm and reflective, slow to medium slow tempo, cozy spiritual atmosphere, background music for quiet moments with God, seamless loop",
+    negative: "no lyrics, no lead vocals, no aggressive drums, no heavy bass, no harsh sounds, no loud moments, no distortion, no pop structure, no intense beats"
+  },
+  {
+    id: "christian-ambient",
+    icon: "🌌",
+    name: "Christian Ambient",
+    text: "christian ambient instrumental, deep ambient pads with soft piano, gentle sustain and long reverb, very slow and contemplative, sacred and spacious atmosphere, soaking worship feeling, background music for prayer and meditation, seamless loop",
+    negative: "no drums, no percussion, no lyrics, no vocals, no melodic leads, no sudden changes, no pop structure, no bright synths, no upbeat energy, no complex arrangement"
+  },
+  {
+    id: "christian-sleep",
+    icon: "🌙",
+    name: "Christian Sleep",
+    text: "christian sleep music instrumental, minimal piano with soft drones and ambient pads, weightless and deeply peaceful, very slow tempo, safe and comforting spiritual atmosphere, music for deep rest in God's peace, seamless loop",
+    negative: "no drums, no percussion, no lyrics, no vocals, no sudden changes, no sharp sounds, no melodic jumps, no tension, no upbeat elements, no complex harmonics"
+  }
+];
+
+const VARIAÇÕES = {
+  ambiente: [
+    "cozy cafe ambience",
+    "rainy night ambience",
+    "quiet bedroom at night",
+    "soft morning sunlight",
+    "candle light atmosphere",
+    "empty night cafe",
+    "window with city lights",
+    "peaceful indoor ambience",
+    "city window at night",
+    "forest morning ambience",
+    "soft fireplace ambience",
+    "rainy afternoon ambience"
+  ],
+  emocao: [
+    "peaceful",
+    "reflective",
+    "emotional",
+    "healing",
+    "calm",
+    "introspective",
+    "comforting",
+    "deep",
+    "hopeful",
+    "surrendered",
+    "tender",
+    "serene"
+  ],
+  uso: [
+    "for sleep",
+    "for study",
+    "for focus",
+    "for relaxation",
+    "for overthinking",
+    "for prayer",
+    "for inner peace",
+    "for Bible reading",
+    "for meditation",
+    "for quiet time with God",
+    "for anxiety relief",
+    "for deep rest"
+  ],
+  variacao: [
+    "with light rain",
+    "with ambient pads",
+    "with soft vinyl texture",
+    "with night atmosphere",
+    "with gentle wind texture",
+    "with soft reverb layers",
+    "with warm drone layer",
+    "with subtle string texture"
+  ],
+  instrumento: [
+    "with soft piano lead",
+    "with saxophone melody",
+    "with muted trumpet",
+    "with acoustic guitar",
+    "with gentle flute",
+    "with rhodes piano",
+    "with cello undertone",
+    "with ambient synth pads"
+  ]
+};
+
+// SEO tags por base
+const BASE_TAGS = {
+  "christian-jazz":    "christian jazz, soft jazz music, christian instrumental, piano and saxophone, peaceful christian music, relaxing christian jazz, background christian music, christian music for study, christian music for sleep, instrumental worship",
+  "worship-piano":     "worship piano, christian piano music, instrumental worship, peaceful piano, devotional music, christian background music, piano for prayer, soft worship music, bible study music, christian meditation music",
+  "christian-lofi":    "christian lofi, christian lo-fi beats, lofi worship, christian study music, lofi christian, peaceful lofi, christian background beats, lofi bible study, christian chill music, worship lofi",
+  "christian-ambient": "christian ambient, soaking worship, ambient worship music, christian meditation music, prayer room music, instrumental christian ambient, deep worship ambient, peaceful christian atmosphere, soaking music, christian background ambient",
+  "christian-sleep":   "christian sleep music, sleep in gods peace, christian music for sleep, peaceful sleep music, christian bedtime music, sleep worship music, christian music for insomnia, calm christian sleep, rest in god music, christian night music"
+};
+
+// ═══════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════
+
+let selectedBase      = null;
+let selectedAmbiente  = null;
+let selectedEmocao    = null;
+let selectedUso       = null;
+let selectedVariacao  = null;
+let selectedInstrumento = null;
+let currentMode       = 'simple';
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+
+function init(){
+  buildBaseGrid();
+  buildChips('ambienteChips',   VARIAÇÕES.ambiente,    'ambiente');
+  buildChips('emocaoChips',     VARIAÇÕES.emocao,      'emocao');
+  buildChips('usoChips',        VARIAÇÕES.uso,         'uso');
+  buildChips('variacaoChips',   VARIAÇÕES.variacao,    'variacao',   true);
+  buildChips('instrumentoChips',VARIAÇÕES.instrumento, 'instrumento',true);
+  loadHistory();
+
+  // Selecionar base padrão (Christian Jazz)
+  const firstCard = document.querySelector('.base-card');
+  if(firstCard) firstCard.click();
+}
+
+// ═══════════════════════════════════════════════════
+// BASE GRID
+// ═══════════════════════════════════════════════════
+
+function buildBaseGrid(){
+  const grid = document.getElementById('baseGrid');
+  BASES.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'base-card';
+    el.dataset.id = b.id;
+    el.innerHTML = `
+      <div class="base-icon">${b.icon}</div>
+      <div class="base-name">${b.name}</div>
+      <div class="base-preview">${b.text.substring(0,60)}...</div>`;
+    el.onclick = () => selectBase(b.id, el);
+    grid.appendChild(el);
+  });
+}
+
+function selectBase(id, el){
+  document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBase = BASES.find(b => b.id === id);
+  document.getElementById('basePreview').innerHTML =
+    `<span>Base ativa:</span> ${selectedBase.text}`;
+}
+
+// ═══════════════════════════════════════════════════
+// CHIPS
+// ═══════════════════════════════════════════════════
+
+function buildChips(containerId, items, type, optional = false){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+
+  if(optional){
+    const none = document.createElement('div');
+    none.className = 'chip active';
+    none.textContent = '— nenhum';
+    none.dataset.type = type;
+    none.dataset.value = '';
+    none.onclick = () => selectChip(none, type);
+    container.appendChild(none);
+  }
+
+  items.forEach(item => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = item;
+    chip.dataset.type  = type;
+    chip.dataset.value = item;
+    chip.onclick = () => selectChip(chip, type);
+    container.appendChild(chip);
+  });
+}
+
+function selectChip(chip, type){
+  const container = chip.parentElement;
+  container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+
+  const val = chip.dataset.value;
+  if(type === 'ambiente')    selectedAmbiente   = val || null;
+  if(type === 'emocao')      selectedEmocao     = val || null;
+  if(type === 'uso')         selectedUso        = val || null;
+  if(type === 'variacao')    selectedVariacao   = val || null;
+  if(type === 'instrumento') selectedInstrumento= val || null;
+}
+
+// ═══════════════════════════════════════════════════
+// MODO
+// ═══════════════════════════════════════════════════
+
+function setMode(mode){
+  currentMode = mode;
+  document.getElementById('modeSimple').classList.toggle('active', mode === 'simple');
+  document.getElementById('modeLote').classList.toggle('active',  mode === 'lote');
+  document.getElementById('lotePanel').style.display = mode === 'lote' ? 'block' : 'none';
+  document.getElementById('generateBtn').textContent =
+    mode === 'simple' ? '⚡ Gerar Prompt' : '⚡ Gerar Lote de Prompts';
+}
+
+function updateLoteCount(){
+  document.getElementById('loteCount').textContent =
+    document.getElementById('loteRange').value;
+}
+
+// ═══════════════════════════════════════════════════
+// GERAÇÃO
+// ═══════════════════════════════════════════════════
+
+function generate(){
+  if(!selectedBase){
+    showToast('⚠️ Selecione uma base musical primeiro!', true);
+    return;
+  }
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Gerando...';
+
+  setTimeout(() => {
+    try {
+      if(currentMode === 'simple') generateSingle();
+      else generateLote();
+    } catch(e){
+      showToast('❌ Erro ao gerar. Tente novamente.', true);
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = currentMode === 'simple'
+        ? '⚡ Gerar Prompt'
+        : '⚡ Gerar Lote de Prompts';
+    }
+  }, 250);
+}
+
+// ─── ÚNICO ───────────────────────────────────────────
+function generateSingle(){
+  if(!selectedAmbiente || !selectedEmocao || !selectedUso){
+    showToast('⚠️ Selecione Ambiente, Emoção e Uso antes de gerar!', true);
+    return;
+  }
+
+  const result = buildPrompt(
+    selectedAmbiente,
+    selectedEmocao,
+    selectedUso,
+    selectedVariacao,
+    selectedInstrumento
+  );
+
+  const dur    = document.getElementById('duration').value;
+  const series = document.getElementById('seriesName').value.trim();
+
+  const ytTitle = buildYtTitle(selectedUso, selectedAmbiente, dur, series);
+  const spTitle = buildSpTitle(selectedEmocao, selectedUso);
+  const tags    = BASE_TAGS[selectedBase.id] || '';
+
+  document.getElementById('singlePrompt').textContent  = result.prompt;
+  document.getElementById('singleNeg').textContent     = selectedBase.negative;
+  document.getElementById('singleTitle').textContent   = ytTitle;
+  document.getElementById('singleSpotify').textContent = spTitle;
+  document.getElementById('singleTags').textContent    = tags;
+
+  updateCharCount('singlePrompt','singleCount');
+
+  document.getElementById('singleOutput').style.display = 'block';
+  document.getElementById('loteOutput').style.display   = 'none';
+  document.getElementById('singleOutput').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Salvar no histórico
+  saveHistory({
+    prompt: result.prompt,
+    ambiente: selectedAmbiente,
+    emocao: selectedEmocao,
+    uso: selectedUso,
+    base: selectedBase.name,
+    ts: Date.now()
+  });
+
+  showToast('✅ Prompt gerado!');
+}
+
+// ─── LOTE ────────────────────────────────────────────
+function generateLote(){
+  const qty  = parseInt(document.getElementById('loteRange').value);
+  const dur  = document.getElementById('duration').value;
+  const series = document.getElementById('seriesName').value.trim();
+
+  const combos = generateCombos(qty);
+  const list   = document.getElementById('loteList');
+  list.innerHTML = '';
+
+  const allPrompts = [];
+  const allTitles  = [];
+
+  combos.forEach((c, i) => {
+    const result  = buildPrompt(c.ambiente, c.emocao, c.uso, c.variacao, c.instrumento);
+    const ytTitle = buildYtTitle(c.uso, c.ambiente, dur, series ? `${series} #${i+1}` : '');
+    const spTitle = buildSpTitle(c.emocao, c.uso);
+
+    allPrompts.push(result.prompt);
+    allTitles.push(ytTitle);
+
+    const card = document.createElement('div');
+    card.className = 'prompt-card';
+    card.innerHTML = `
+      <div class="prompt-card-header">
+        <span class="prompt-num">🎵 Música ${i+1}</span>
+        <div class="prompt-tags">
+          <span class="prompt-tag">${c.ambiente}</span>
+          <span class="prompt-tag">${c.emocao}</span>
+          <span class="prompt-tag">${c.uso}</span>
+          ${c.variacao ? `<span class="prompt-tag">${c.variacao}</span>` : ''}
+        </div>
+      </div>
+      <div class="prompt-text">${escHtml(result.prompt)}</div>
+      <div class="prompt-title">📺 ${escHtml(ytTitle)}</div>
+      <div class="prompt-title" style="color:#a78bfa">🎵 ${escHtml(spTitle)}</div>
+      <button class="btn-copy-sm" onclick="copyText('${escAttr(result.prompt)}')">📋 Copiar Prompt</button>
+    `;
+    list.appendChild(card);
+
+    // Salvar no histórico
+    saveHistory({
+      prompt: result.prompt,
+      ambiente: c.ambiente,
+      emocao: c.emocao,
+      uso: c.uso,
+      base: selectedBase.name,
+      ts: Date.now()
+    });
+  });
+
+  // Guardar para cópia em massa
+  window._lotePrompts = allPrompts;
+  window._loteTitles  = allTitles;
+
+  document.getElementById('loteOutput').style.display  = 'block';
+  document.getElementById('singleOutput').style.display= 'none';
+  document.getElementById('loteOutput').scrollIntoView({behavior:'smooth',block:'start'});
+
+  showToast(`✅ ${qty} prompts gerados!`);
+}
+
+function generateCombos(qty){
+  const ambs  = shuffle([...VARIAÇÕES.ambiente]);
+  const emocs = shuffle([...VARIAÇÕES.emocao]);
+  const usos  = shuffle([...VARIAÇÕES.uso]);
+  const vars  = [null, ...VARIAÇÕES.variacao];
+  const insts = [null, ...VARIAÇÕES.instrumento];
+
+  const combos = [];
+  const used   = new Set();
+
+  let attempts = 0;
+  while(combos.length < qty && attempts < 500){
+    attempts++;
+    const a = ambs [attempts % ambs.length];
+    const e = emocs[attempts % emocs.length];
+    const u = usos [attempts % usos.length];
+    const v = vars [Math.floor(Math.random() * vars.length)];
+    const ins = insts[Math.floor(Math.random() * insts.length)];
+
+    const key = `${a}|${e}|${u}`;
+    if(used.has(key)) continue;
+    used.add(key);
+    combos.push({ambiente:a, emocao:e, uso:u, variacao:v, instrumento:ins});
+  }
+
+  return combos;
+}
+
+// ─── BUILD PROMPT ─────────────────────────────────────
+function buildPrompt(ambiente, emocao, uso, variacao, instrumento){
+  const parts = [selectedBase.text];
+  if(ambiente)    parts.push(ambiente);
+  if(emocao)      parts.push(`${emocao} and ${emocao === 'calm' ? 'peaceful' : 'gentle'} mood`);
+  if(uso)         parts.push(`relaxing background music ${uso}`);
+  if(variacao)    parts.push(variacao);
+  if(instrumento) parts.push(instrumento);
+
+  const prompt = parts.join(', ');
+  return { prompt };
+}
+
+// ─── BUILD TÍTULOS ────────────────────────────────────
+function buildYtTitle(uso, ambiente, dur, series){
+  const usoClean  = uso  ? uso.replace('for ','').replace(/\b\w/g, l => l.toUpperCase()) : 'Relaxation';
+  const ambClean  = ambiente ? ambiente.replace(/\b\w/g, l => l.toUpperCase()) : '';
+  const baseName  = selectedBase.name;
+  const durStr    = dur === 'Single Track' ? '' : ` | ${dur}`;
+  const seriesStr = series ? ` — ${series}` : '';
+
+  return `✝️ ${baseName} for ${usoClean} | ${ambClean}${seriesStr}${durStr}`;
+}
+
+function buildSpTitle(emocao, uso){
+  const e = emocao ? emocao.replace(/\b\w/g, l => l.toUpperCase()) : 'Peaceful';
+  const u = uso    ? uso.replace('for ','').replace(/\b\w/g, l => l.toUpperCase()) : 'Rest';
+  return `${selectedBase.name} — ${e} ${u}`;
+}
+
+// ═══════════════════════════════════════════════════
+// HISTÓRICO
+// ═══════════════════════════════════════════════════
+
+function saveHistory(item){
+  let history = getHistory();
+  history.unshift(item);
+  if(history.length > 20) history = history.slice(0,20);
+  localStorage.setItem('cmpg_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function getHistory(){
+  try { return JSON.parse(localStorage.getItem('cmpg_history') || '[]'); }
+  catch { return []; }
+}
+
+function loadHistory(){ renderHistory(); }
+
+function renderHistory(){
+  const history = getHistory();
+  const container = document.getElementById('historyList');
+
+  if(history.length === 0){
+    container.innerHTML = '<div class="empty-state">Nenhum prompt gerado ainda.</div>';
+    return;
+  }
+
+  container.innerHTML = history.map((h,i) => `
+    <div class="history-item">
+      <div>${escHtml(h.prompt.substring(0,120))}${h.prompt.length > 120 ? '...' : ''}</div>
+      <div class="history-meta">
+        ${h.base} · ${h.ambiente || '—'} · ${h.emocao || '—'} · ${h.uso || '—'} ·
+        ${new Date(h.ts).toLocaleString('pt-BR')}
+      </div>
+      <div class="history-actions">
+        <button class="btn-copy-sm" onclick="copyText('${escAttr(h.prompt)}')">📋 Copiar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearHistory(){
+  localStorage.removeItem('cmpg_history');
+  renderHistory();
+  showToast('🗑️ Histórico limpo!');
+}
+
+// ═══════════════════════════════════════════════════
+// COPY LOTE
+// ═══════════════════════════════════════════════════
+
+function copyAllLote(){
+  if(!window._lotePrompts) return;
+  copyText(window._lotePrompts.map((p,i) => `[${i+1}]\n${p}`).join('\n\n'));
+}
+
+function copyAllTitles(){
+  if(!window._loteTitles) return;
+  copyText(window._loteTitles.map((t,i) => `${i+1}. ${t}`).join('\n'));
+}
+
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+
+function updateCharCount(elId, countId){
+  const len = document.getElementById(elId).textContent.length;
+  const el  = document.getElementById(countId);
+  el.textContent = `${len} caracteres`;
+  el.className = 'char-count' + (len > 300 ? ' over' : len > 230 ? ' warn' : '');
+}
+
+function copyEl(id){
+  copyText(document.getElementById(id).textContent);
+}
+
+function copyText(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(() => showToast('✅ Copiado!'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✅ Copiado!');
+  }
+}
+
+function showToast(msg, isError = false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background  = isError ? '#450a0a' : '#052e16';
+  t.style.borderColor = isError ? '#ef4444' : '#22c55e';
+  t.style.color       = isError ? '#fca5a5' : '#86efac';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function shuffle(arr){
+  for(let i = arr.length-1; i > 0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function escHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escAttr(str){
+  return String(str).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
+
+
+
